@@ -16,7 +16,6 @@ import atexit
 import socket
 import signal
 import getpass
-import tempfile
 import traceback
 import subprocess
 import types
@@ -2885,23 +2884,12 @@ class UI(PluginForm):
 
         print "[+] Saving history object as %s" % filename
 
-        tmp = tempfile.TemporaryFile(mode='wb')
-        tmpname = tmp.name
-        tmp.close()
-
         if not userRefTree:
             tree = self.reftree
         else:
             tree = userRefTree
 
-        pickled_file = open(tmpname, "wb")
-        pickle.dump(tree, pickled_file)
-        pickled_file.close()
-
-        fh = open(tmpname, "rb")
-        graphObj_data = fh.read()
-        fh.close()
-
+        graphObj_data = pickle.dumps(tree)
         self.fs.store(filename, graphObj_data)
         self.refreshFilesystem()
 
@@ -4042,17 +4030,7 @@ class UI(PluginForm):
             to_pickle = RefTree.RefTree(masterGraph=self.master, function_data=addys)
             print "[*] Created RefTree from queue data"
 
-            tmp = tempfile.TemporaryFile(mode='wb')
-            tmpname = tmp.name
-            tmp.close()
-
-            pickled_file = open(tmpname, "wb")
-            pickle.dump(to_pickle, pickled_file)
-            pickled_file.close()
-
-            fh = open(tmpname, "rb")
-            obj_data = fh.read()
-            fh.close()
+            obj_data = pickle.dumps(to_pickle) 
 
         elif objtype == "marks":
             #self.sendPeer((marks, group), "marks", "marks.marks")
